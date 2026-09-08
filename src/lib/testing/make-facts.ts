@@ -24,7 +24,7 @@ export function makeFacts(overrides: Partial<SiteFacts> = {}): SiteFacts {
     h1s: ['Trusted Plumbing Services in Boston'],
     h2s: ['Our Services', 'Why Choose Us', 'Service Area'],
     aboveFoldText:
-      'Trusted plumbing services in Boston. Licensed and insured. Call now for a free quote.',
+      'Trusted plumbing services in Boston. Licensed and insured with fast response. Call now for a free quote.',
     bodyText: BASE_BODY_TEXT,
     bodyWordCount: 600,
     textToCodeRatio: 0.15,

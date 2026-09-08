@@ -45,8 +45,7 @@ export const analyzeOfferClarity: Analyzer = (facts, input) => {
     fixes.push('Break your offer into named services with subheadings.')
   }
 
-  const firstScreenCopy = [...facts.h1s, facts.aboveFoldText, ...facts.ctaTexts].join(' ')
-  const foldVerb = ACTION_VERBS.find((v) => hasWord(firstScreenCopy, v))
+  const foldVerb = ACTION_VERBS.find((v) => hasWord(facts.aboveFoldText, v))
   const bodyVerb = ACTION_VERBS.find((v) => hasWord(facts.bodyText, v))
   if (foldVerb) {
     score += 4
@@ -60,7 +59,7 @@ export const analyzeOfferClarity: Analyzer = (facts, input) => {
     fixes.push('Add a clear instruction like "Call today" or "Book a visit".')
   }
 
-  const foldWords = firstScreenCopy ? firstScreenCopy.split(/\s+/).filter(Boolean).length : 0
+  const foldWords = facts.aboveFoldText ? facts.aboveFoldText.split(/\s+/).filter(Boolean).length : 0
   if (foldWords >= 15) {
     score += 3
     evidence.push(`First screen has enough copy to explain the offer (${foldWords} words).`)

@@ -17,10 +17,11 @@ describe('analyzeOfferClarity', () => {
 
   it('gives half credit when the business word is only in the body', () => {
     const facts = makeFacts({
-      aboveFoldText: 'Welcome to our website. We are here to help you today.',
+      aboveFoldText:
+        'Welcome to our website. We are here to help you with anything. Call us today for support.',
     })
     const section = analyzeOfferClarity(facts, BASE_INPUT, [])
-    expect(section.score).toBe(15 - 4 + 2)
+    expect(section.score).toBe(13)
   })
 
   it('awards service structure for three or more H2 subheadings', () => {
