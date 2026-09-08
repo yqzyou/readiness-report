@@ -76,10 +76,10 @@ export function expandIPv6(hostname: string): string[] | null {
 }
 
 function isPrivateIPv6(groups: string[]): boolean {
-  // ::1 in any written form
-  if (groups.slice(0, 7).every((g) => g === '0000') && groups[7] === '0001') return true
-  // IPv4-mapped (::ffff:a.b.c.d or ::ffff:aabb:ccdd) -> reuse IPv4 blocklist
-  if (groups.slice(0, 5).every((g) => g === '0000') && groups[5] === 'ffff') {
+  // Any address whose first six groups are zero or ::ffff:x (::1, ::a.b.c.d,
+  // ::7f00:1, ::ffff:a.b.c.d, ::ffff:aabb:ccdd) carries an IPv4 address in the
+  // low 32 bits -> reuse the IPv4 blocklist.
+  if (groups.slice(0, 5).every((g) => g === '0000') && (groups[5] === '0000' || groups[5] === 'ffff')) {
     const ipv4 = [
       parseInt(groups[6].slice(0, 2), 16),
       parseInt(groups[6].slice(2), 16),
@@ -88,9 +88,13 @@ function isPrivateIPv6(groups: string[]): boolean {
     ].join('.')
     if (isPrivateIPv4(ipv4)) return true
   }
-  // Link-local fe80::/10
   const first = parseInt(groups[0], 16)
+  // Link-local fe80::/10
   if (first >= 0xfe80 && first <= 0xfebf) return true
+  // Unique local fc00::/7
+  if (first >= 0xfc00 && first <= 0xfdff) return true
+  // Multicast ff00::/8
+  if (first >= 0xff00) return true
   return false
 }
 
