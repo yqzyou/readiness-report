@@ -1,8 +1,382 @@
+:root {
+  --bg: #faf7f2;
+  --ink: #1c1814;
+  --muted: #6f6357;
+  --accent: #b3541e;
+  --accent-ink: #8a3f14;
+  --card: #fffdf9;
+  --line: #e7ddd0;
+  --good: #2e7d32;
+  --warning: #b26a00;
+  --critical: #b3261e;
+  --font-display: Georgia, 'Times New Roman', serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial,
+    sans-serif;
+  --radius: 14px;
+  --shadow: 0 10px 30px rgba(60, 42, 20, 0.08);
+}
+
 * {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  font-family: system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  line-height: 1.6;
+}
+
+main {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 4rem 1.5rem 6rem;
+}
+
+.kicker {
+  font-family: var(--font-body);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.72rem;
+  color: var(--accent);
+  margin: 0 0 0.75rem;
+}
+
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  line-height: 1.12;
+  margin: 0 0 1rem;
+  letter-spacing: -0.01em;
+}
+
+.lede {
+  font-size: 1.15rem;
+  color: var(--muted);
+  max-width: 34em;
+  margin: 0 0 2.5rem;
+}
+
+.audit-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.75rem;
+  margin-bottom: 4rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.field-wide {
+  grid-column: 1 / -1;
+}
+
+.field span {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.field input,
+.field select {
+  font: inherit;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+}
+
+.field input:focus-visible,
+.field select:focus-visible,
+.submit:focus-visible,
+.report-actions button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.submit {
+  grid-column: 1 / -1;
+  font: inherit;
+  font-weight: 700;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 10px;
+  padding: 0.9rem 1.5rem;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.submit:hover:not(:disabled) {
+  background: var(--accent-ink);
+}
+
+.submit:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.form-error {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--critical);
+  background: rgba(179, 38, 30, 0.08);
+  border-radius: 8px;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.95rem;
+}
+
+.how h2 {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  margin: 0 0 1rem;
+}
+
+.how ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.how li {
+  padding-left: 1.4rem;
+  position: relative;
+  color: var(--muted);
+}
+
+.how li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+}
+
+/* Report page */
+
+.report-header {
+  margin-bottom: 2.5rem;
+}
+
+.score-block {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+  flex-wrap: wrap;
+}
+
+.score-ring {
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 6px solid var(--line);
+  flex-shrink: 0;
+}
+
+.score-ring.good {
+  border-color: var(--good);
+}
+
+.score-ring.warning {
+  border-color: var(--warning);
+}
+
+.score-ring.critical {
+  border-color: var(--critical);
+}
+
+.score-number {
+  font-family: var(--font-display);
+  font-size: 2.6rem;
+  line-height: 1;
+}
+
+.score-total {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.report-header h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+  margin: 0 0 0.4rem;
+}
+
+.report-meta {
+  color: var(--muted);
+  margin: 0;
+}
+
+.report-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.report-actions button {
+  font: inherit;
+  font-weight: 600;
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+
+.report-actions button.secondary {
+  background: transparent;
+  color: var(--accent-ink);
+}
+
+.report-actions button:hover {
+  opacity: 0.85;
+}
+
+.risks,
+.plan {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.5rem 1.75rem;
+  margin-bottom: 2rem;
+}
+
+.risks h2,
+.plan h2,
+.sections h2 {
+  font-family: var(--font-display);
+  margin-top: 0;
+}
+
+.risks ol {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.section-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-left-width: 6px;
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.section-card.good {
+  border-left-color: var(--good);
+}
+
+.section-card.warning {
+  border-left-color: var(--warning);
+}
+
+.section-card.critical {
+  border-left-color: var(--critical);
+}
+
+.section-card header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.section-card h3 {
+  font-family: var(--font-display);
+  margin: 0;
+}
+
+.section-score {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.section-status {
+  text-transform: capitalize;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  margin: 0.25rem 0 0.75rem;
+}
+
+.section-card.good .section-status {
+  color: var(--good);
+}
+
+.section-card.warning .section-status {
+  color: var(--warning);
+}
+
+.section-card.critical .section-status {
+  color: var(--critical);
+}
+
+.why {
+  color: var(--muted);
+  margin-top: 0;
+}
+
+.evidence h4,
+.fixes h4 {
+  margin: 0.9rem 0 0.35rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.evidence ul,
+.fixes ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.plan-list {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.plan-list li {
+  display: flex;
+  gap: 0.75rem;
+  align-items: baseline;
+}
+
+.plan-list .day {
+  font-weight: 700;
+  color: var(--accent-ink);
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .audit-form {
+    grid-template-columns: 1fr;
+  }
+
+  .score-block {
+    flex-direction: column;
+    text-align: center;
+  }
 }
