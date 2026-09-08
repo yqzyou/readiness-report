@@ -1,7 +1,7 @@
 import type { Analyzer } from '../types'
 import { makeSection } from './helpers'
 
-const TESTIMONIAL_PATTERN = /testimonial|review|what our (clients|customers) say|rated \d|stars?/i
+const TESTIMONIAL_PATTERN = /testimonial|review|what our (clients|customers) say|rated \d|\bstars?\b/i
 const STRONG_CREDENTIALS = /licen[sc]ed|insured|certified|accredited|award/i
 const WEAK_CREDENTIALS = /\b\d+\+? years?\b|since \d{4}|established in \d{4}/i
 

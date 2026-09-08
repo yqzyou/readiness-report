@@ -28,4 +28,13 @@ describe('analyzeTrustSignals', () => {
     const section = analyzeTrustSignals(facts, BASE_INPUT, [])
     expect(section.score).toBe(13)
   })
+
+  it('does not award testimonial points for a "Get started" CTA', () => {
+    const facts = makeFacts({
+      bodyText: 'Get started today. We fix leaks and install pipes.',
+    })
+    const section = analyzeTrustSignals(facts, BASE_INPUT, [])
+    expect(section.score).toBe(8)
+    expect(section.evidence.join(' ')).toMatch(/No customer reviews/i)
+  })
 })
