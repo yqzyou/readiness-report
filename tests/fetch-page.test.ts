@@ -14,6 +14,12 @@ afterEach(() => {
 
 describe('SSRF protection', () => {
   const privateTargets = [
+    'http://2130706433/',
+    'http://0x7f000001/',
+    'http://[::ffff:127.0.0.1]/',
+    'http://[0:0:0:0:0:ffff:7f00:1]/',
+    'http://[0:0:0:0:0:0:0:1]/',
+    'http://[fe80::1]/',
     'http://localhost:3000/admin',
     'http://127.0.0.1/',
     'https://192.168.1.1/',
@@ -31,6 +37,19 @@ describe('SSRF protection', () => {
       expect(fetchMock).not.toHaveBeenCalled()
     })
   }
+
+  it('allows public IPv6 literal addresses', async () => {
+    stubFetch(() =>
+      Promise.resolve(
+        new Response('<html><body>hi</body></html>', {
+          status: 200,
+          headers: { 'content-type': 'text/html' },
+        }),
+      ),
+    )
+    const page = await fetchPage('http://[2606:4700::6810:85e5]/')
+    expect(page.statusCode).toBe(200)
+  })
 
   it('blocks redirects that lead to a private address', async () => {
     stubFetch(() =>
