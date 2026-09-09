@@ -7,3 +7,4 @@ coverage/
 data/reports/
 *.log
 .DS_Store
+*.tsbuildinfo
