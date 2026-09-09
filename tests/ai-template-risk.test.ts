@@ -28,4 +28,21 @@ describe('analyzeAiTemplateRisk', () => {
     const section = analyzeAiTemplateRisk(makeFacts({ sentenceStartVariety: 0.65 }), BASE_INPUT, [])
     expect(section.score).toBe(8)
   })
+
+  it('does not judge sentence variety when the page has too few sentences', () => {
+    const section = analyzeAiTemplateRisk(
+      makeFacts({ sentenceCount: 3, sentenceStartVariety: 0.2 }),
+      BASE_INPUT,
+      [],
+    )
+    expect(section.score).toBe(7)
+    expect(section.evidence.join(' ')).toMatch(/too few sentences/i)
+    expect(section.fixes.join(' ')).not.toMatch(/rewrite repetitive/i)
+  })
+
+  it('does not reward sentence variety when the page has no sentences at all', () => {
+    const section = analyzeAiTemplateRisk(makeFacts({ sentenceCount: 0 }), BASE_INPUT, [])
+    expect(section.score).toBe(7)
+    expect(section.evidence.join(' ')).toMatch(/too few sentences/i)
+  })
 })

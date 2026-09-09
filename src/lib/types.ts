@@ -57,6 +57,7 @@ export type SiteFacts = {
   hasMapEmbed: boolean
   buzzwordHits: string[]
   numberHits: number
+  sentenceCount: number
   sentenceStartVariety: number
 }
 

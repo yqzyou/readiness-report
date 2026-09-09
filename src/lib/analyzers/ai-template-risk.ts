@@ -1,6 +1,8 @@
 import type { Analyzer } from '../types'
 import { makeSection } from './helpers'
 
+const MIN_SENTENCES_FOR_VARIETY = 5
+
 export const analyzeAiTemplateRisk: Analyzer = (facts) => {
   let score = 0
   const evidence: string[] = []
@@ -37,17 +39,23 @@ export const analyzeAiTemplateRisk: Analyzer = (facts) => {
     fixes.push('Add specifics: years in business, jobs completed, response time, warranty length.')
   }
 
-  const repetition = 1 - facts.sentenceStartVariety
-  if (repetition <= 0.2) {
-    score += 3
-    evidence.push('Sentences open in varied ways — reads human.')
-  } else if (repetition <= 0.4) {
-    score += 1
-    evidence.push(`Many sentences start the same way (repetition ${Math.round(repetition * 100)}%).`)
-    fixes.push('Vary how sentences open; repeated openers make copy feel machine-generated.')
+  if (facts.sentenceCount < MIN_SENTENCES_FOR_VARIETY) {
+    evidence.push(
+      `Too few sentences (${facts.sentenceCount}) to judge writing variety — skipped.`,
+    )
   } else {
-    evidence.push(`Most sentences start the same way (repetition ${Math.round(repetition * 100)}%) — reads templated.`)
-    fixes.push('Rewrite repetitive blocks; mix sentence lengths and openings.')
+    const repetition = 1 - facts.sentenceStartVariety
+    if (repetition <= 0.2) {
+      score += 3
+      evidence.push('Sentences open in varied ways — reads human.')
+    } else if (repetition <= 0.4) {
+      score += 1
+      evidence.push(`Many sentences start the same way (repetition ${Math.round(repetition * 100)}%).`)
+      fixes.push('Vary how sentences open; repeated openers make copy feel machine-generated.')
+    } else {
+      evidence.push(`Most sentences start the same way (repetition ${Math.round(repetition * 100)}%) — reads templated.`)
+      fixes.push('Rewrite repetitive blocks; mix sentence lengths and openings.')
+    }
   }
 
   return makeSection({

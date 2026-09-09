@@ -38,6 +38,7 @@ export function makeFacts(overrides: Partial<SiteFacts> = {}): SiteFacts {
     hasMapEmbed: true,
     buzzwordHits: [],
     numberHits: 3,
+    sentenceCount: 12,
     sentenceStartVariety: 1,
     ...overrides,
   }
@@ -67,6 +68,7 @@ export function sparseFacts(): SiteFacts {
     hasMapEmbed: false,
     buzzwordHits: ['seamless', 'innovative'],
     numberHits: 0,
+    sentenceCount: 0,
     sentenceStartVariety: 0.5,
   })
 }

@@ -129,6 +129,7 @@ export function parseFacts(html: string): SiteFacts {
     hasMapEmbed,
     buzzwordHits,
     numberHits,
+    sentenceCount: sentences.length,
     sentenceStartVariety,
   }
 }
