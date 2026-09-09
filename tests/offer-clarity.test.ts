@@ -29,4 +29,12 @@ describe('analyzeOfferClarity', () => {
     const without = analyzeOfferClarity(facts, BASE_INPUT, [])
     expect(without.score).toBe(11)
   })
+
+  it('uses singular "word" when the first screen has exactly one word', () => {
+    const facts = makeFacts({ aboveFoldText: 'Welcome.' })
+    const section = analyzeOfferClarity(facts, BASE_INPUT, [])
+    const joined = section.evidence.join(' ')
+    expect(joined).toMatch(/1 word\b/)
+    expect(joined).not.toMatch(/1 words/)
+  })
 })

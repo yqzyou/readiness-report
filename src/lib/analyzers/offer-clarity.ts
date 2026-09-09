@@ -68,7 +68,8 @@ export const analyzeOfferClarity: Analyzer = (facts, input) => {
     evidence.push(`First screen copy is sparse (${foldWords} words).`)
     fixes.push('Add a sentence or two on the first screen explaining what you offer and for whom.')
   } else {
-    evidence.push(`First screen is almost empty (${foldWords} words).`)
+    const wordForm = foldWords === 1 ? 'word' : 'words'
+    evidence.push(`First screen is almost empty (${foldWords} ${wordForm}).`)
     fixes.push('Write a real opening block: what you do, for whom, where, and what to do next.')
   }
 
