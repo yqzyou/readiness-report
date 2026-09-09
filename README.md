@@ -46,3 +46,6 @@ Signals 15 · Local Fit 10 · AI Template Risk 10 · Ad Readiness 15.
 - The analyzer layer is pure functions over `SiteFacts` — designed so an LLM
   can replace or augment the rules later without touching fetch/UI.
 - Storage is a JSON-file interface — swappable for SQLite later.
+- Scoring thresholds (title/meta lengths, buzzword lists, sentence analysis)
+  are calibrated for English-language pages; results for non-English sites
+  may be misjudged.
