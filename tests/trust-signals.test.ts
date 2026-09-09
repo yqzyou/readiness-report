@@ -20,6 +20,16 @@ describe('analyzeTrustSignals', () => {
     expect(section.score).toBe(13)
   })
 
+  it('attributes partial photo credit to missing alt text when images are plentiful', () => {
+    const section = analyzeTrustSignals(
+      makeFacts({ imageCount: 31, imagesMissingAlt: 10 }),
+      BASE_INPUT,
+      [],
+    )
+    expect(section.score).toBe(13)
+    expect(section.evidence.join(' ')).toMatch(/lack alt text/)
+  })
+
   it('gives weak credential credit for experience years only', () => {
     const facts = makeFacts({
       bodyText:

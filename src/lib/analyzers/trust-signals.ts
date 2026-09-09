@@ -30,6 +30,13 @@ export const analyzeTrustSignals: Analyzer = (facts) => {
   if (facts.imageCount >= 5 && missingAltRatio < 0.25) {
     score += 4
     evidence.push(`${facts.imageCount} images on the page — looks like real photos, not a blank template.`)
+  } else if (facts.imageCount >= 5) {
+    score += 2
+    const missingPct = Math.round(missingAltRatio * 100)
+    evidence.push(
+      `${facts.imageCount} images, but ${missingPct}% lack alt text — search engines and screen readers cannot use them.`,
+    )
+    fixes.push('Add descriptive alt text to your images (aim for under 25% missing).')
   } else if (facts.imageCount >= 3) {
     score += 2
     evidence.push(`Only ${facts.imageCount} images — the page risks feeling like a template.`)
