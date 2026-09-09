@@ -37,3 +37,17 @@ describe('goal-aware scoring', () => {
     expect(section.fixes.join(' ')).toMatch(/phone/i)
   })
 })
+
+describe('CTA specificity', () => {
+  it('does not treat bare stat badges like "135+" as specific CTAs', () => {
+    const facts = makeFacts({ ctaTexts: ['135+', 'Learn more'] })
+    const section = analyzeConversionPath(facts, BASE_INPUT, [])
+    expect(section.evidence.join(' ')).toMatch(/generic/i)
+  })
+
+  it('treats numbers paired with action words as specific', () => {
+    const facts = makeFacts({ ctaTexts: ['Get $50 off'] })
+    const section = analyzeConversionPath(facts, BASE_INPUT, [])
+    expect(section.evidence.join(' ')).toMatch(/specific CTA exists/)
+  })
+})

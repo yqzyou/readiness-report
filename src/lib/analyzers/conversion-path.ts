@@ -30,7 +30,17 @@ const GENERIC_VERBS = [
   'get', 'request', 'reserve', 'visit', 'hire', 'quote',
 ]
 
-const SPECIFIC_CTA = /\b(free|today|now|instant)\b|\d/i
+const SPECIFIC_CTA_URGENCY = /\b(free|today|now|instant)\b/i
+const SPECIFIC_CTA_NUMBER = /\d/
+const CTA_ACTION_WORDS =
+  /\b(call|book|get|order|buy|quote|schedule|reserve|contact|request|visit|hire|save|start|shop)\b/i
+
+function isSpecificCta(text: string): boolean {
+  return (
+    SPECIFIC_CTA_URGENCY.test(text) ||
+    (SPECIFIC_CTA_NUMBER.test(text) && CTA_ACTION_WORDS.test(text))
+  )
+}
 
 const anyContact = (f: SiteFacts) => f.hasTelLink || f.hasMailtoLink || f.hasForm
 
@@ -66,7 +76,7 @@ export const analyzeConversionPath: Analyzer = (facts, input) => {
     fixes.push('Add a button on the first screen inviting the action you want.')
   }
 
-  const specificCta = facts.ctaTexts.find((t) => SPECIFIC_CTA.test(t))
+  const specificCta = facts.ctaTexts.find((t) => isSpecificCta(t))
   if (specificCta) {
     score += 4
     evidence.push(`A specific CTA exists: "${specificCta}".`)
