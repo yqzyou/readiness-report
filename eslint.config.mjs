@@ -17,7 +17,7 @@ const eslintConfig = [
       ],
     },
   },
-  { ignores: ['node_modules/**', '.next/**', 'out/**', 'coverage/**', 'data/**'] },
+  { ignores: ['node_modules/**', '.next/**', 'out/**', 'coverage/**', 'data/**', 'next-env.d.ts'] },
 ]
 
 export default eslintConfig
