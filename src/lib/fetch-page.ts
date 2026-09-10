@@ -1,3 +1,5 @@
+import { promises as dnsPromises } from 'node:dns'
+
 export type FetchPageErrorKind =
   | 'invalid-url'
   | 'ssrf'
@@ -131,8 +133,6 @@ export function assertPublicUrl(url: URL): void {
     throw new FetchPageError('ssrf', 'That address is not allowed. Only public websites can be checked.')
   }
 }
-
-import { promises as dnsPromises } from 'node:dns'
 
 const DOTTED_IPV4 = /^\d{1,3}(?:\.\d{1,3}){3}$/
 
