@@ -54,3 +54,6 @@ Signals 15 · Local Fit 10 · AI Template Risk 10 · Ad Readiness 15.
   defaults to 5 requests/min/IP — override with `RATE_LIMIT_MAX` /
   `RATE_LIMIT_WINDOW_MS`. Every fetch hop resolves DNS first and rejects
   any private-range address (SSRF / rebinding guard).
+- Rate-limit counters live in memory only: they reset on restart, and
+  requests without an `X-Forwarded-For` header share a single
+  "unknown" bucket.
