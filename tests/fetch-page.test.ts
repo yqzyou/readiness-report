@@ -75,6 +75,28 @@ describe('SSRF protection', () => {
       kind: 'ssrf',
     })
   })
+
+  it('blocks a domain that resolves to a private address', async () => {
+    const fetchMock = stubFetch(() => Promise.resolve(new Response('x')))
+    dnsMocks.lookup.mockResolvedValue([{ address: '192.168.0.10', family: 4 }])
+    await expect(fetchPage('https://rebind.example')).rejects.toMatchObject({
+      kind: 'ssrf',
+    })
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('blocks redirects to a domain that resolves to a private address', async () => {
+    stubFetch(() =>
+      Promise.resolve(Response.redirect('https://rebind-dest.example/secret', 302)),
+    )
+    // first hop: public; redirect target resolves private
+    dnsMocks.lookup
+      .mockResolvedValueOnce([{ address: '93.184.216.34', family: 4 }])
+      .mockResolvedValueOnce([{ address: '10.1.2.3', family: 4 }])
+    await expect(fetchPage('https://public.example')).rejects.toMatchObject({
+      kind: 'ssrf',
+    })
+  })
 })
 
 describe('URL normalization', () => {

@@ -177,6 +177,7 @@ export async function fetchPage(
 
   for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
     assertPublicUrl(current)
+    await assertResolvesToPublic(current.hostname)
 
     const controller = new AbortController()
     const timer = setTimeout(() => controller.abort(), timeoutMs)
