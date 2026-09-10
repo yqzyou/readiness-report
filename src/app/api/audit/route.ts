@@ -4,6 +4,7 @@ import { buildReport } from '@/lib/build-report'
 import { fetchPage, FetchPageError, type FetchPageErrorKind } from '@/lib/fetch-page'
 import { parseFacts } from '@/lib/parse-facts'
 import { saveReport } from '@/lib/storage'
+import { checkRateLimit } from '@/lib/rate-limit'
 
 export const runtime = 'nodejs'
 
@@ -28,7 +29,24 @@ function fail(error: string, status: number) {
   return NextResponse.json({ success: false, data: null, error }, { status })
 }
 
+function clientIp(request: Request): string {
+  const forwarded = request.headers.get('x-forwarded-for')
+  return forwarded?.split(',')[0].trim() || 'unknown'
+}
+
 export async function POST(request: Request) {
+  const limit = checkRateLimit(clientIp(request))
+  if (!limit.allowed) {
+    return NextResponse.json(
+      {
+        success: false,
+        data: null,
+        error: "You're checking sites quickly — give it a minute and try again.",
+      },
+      { status: 429, headers: { 'retry-after': String(limit.retryAfterSec) } },
+    )
+  }
+
   let body: unknown
   try {
     body = await request.json()

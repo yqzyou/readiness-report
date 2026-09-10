@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { POST } from '@/app/api/audit/route'
 import { fetchPage, FetchPageError } from '@/lib/fetch-page'
 import { saveReport } from '@/lib/storage'
+import { checkRateLimit } from '@/lib/rate-limit'
 
 vi.mock('@/lib/fetch-page', () => ({
   fetchPage: vi.fn(),
@@ -19,8 +20,13 @@ vi.mock('@/lib/storage', () => ({
   saveReport: vi.fn(),
 }))
 
+vi.mock('@/lib/rate-limit', () => ({
+  checkRateLimit: vi.fn(),
+}))
+
 const mockedFetchPage = vi.mocked(fetchPage)
 const mockedSaveReport = vi.mocked(saveReport)
+const mockedCheckRateLimit = vi.mocked(checkRateLimit)
 
 function request(body: unknown): Request {
   return new Request('http://localhost/api/audit', {
@@ -38,7 +44,9 @@ const VALID_BODY = {
 }
 
 beforeEach(() => {
+  mockedFetchPage.mockReset()
   mockedSaveReport.mockReset()
+  mockedCheckRateLimit.mockReturnValue({ allowed: true, retryAfterSec: 0 })
 })
 
 describe('POST /api/audit', () => {
@@ -93,5 +101,16 @@ describe('POST /api/audit', () => {
     expect(res.status).toBe(500)
     const json = await res.json()
     expect(json.error).not.toMatch(/boom/)
+  })
+
+  it('returns 429 with Retry-After when the rate limit is hit', async () => {
+    mockedCheckRateLimit.mockReturnValueOnce({ allowed: false, retryAfterSec: 42 })
+    const res = await POST(request(VALID_BODY))
+    expect(res.status).toBe(429)
+    expect(res.headers.get('retry-after')).toBe('42')
+    const json = await res.json()
+    expect(json.success).toBe(false)
+    expect(json.error).toMatch(/quickly/i)
+    expect(mockedFetchPage).not.toHaveBeenCalled()
   })
 })
