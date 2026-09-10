@@ -188,6 +188,14 @@ describe('assertResolvesToPublic', () => {
       { address: '2606:4700::6810:85e5', family: 6 },
     ])
     await expect(assertResolvesToPublic('example.com')).resolves.toBeUndefined()
+    expect(dnsMocks.lookup).toHaveBeenCalledWith('example.com', { all: true })
+  })
+
+  it('rejects a malformed IPv6 record (fail closed)', async () => {
+    dnsMocks.lookup.mockResolvedValue([{ address: 'not-an-ipv6', family: 6 }])
+    await expect(assertResolvesToPublic('weird.example')).rejects.toMatchObject({
+      kind: 'ssrf',
+    })
   })
 
   it('rejects a domain resolving to a private IPv4', async () => {

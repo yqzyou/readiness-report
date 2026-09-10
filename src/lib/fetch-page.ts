@@ -149,9 +149,15 @@ export async function assertResolvesToPublic(hostname: string): Promise<void> {
     throw new FetchPageError('dns', 'Could not reach that website. Check the address and try again.')
   }
   for (const { address, family } of records) {
-    const privateV6 = isPrivateIPv6(expandIPv6(address) ?? [])
-    if (family === 4 ? isPrivateIPv4(address) : privateV6) {
-      throw new FetchPageError('ssrf', 'That address is not allowed. Only public websites can be checked.')
+    if (family === 4) {
+      if (isPrivateIPv4(address)) {
+        throw new FetchPageError('ssrf', 'That address is not allowed. Only public websites can be checked.')
+      }
+    } else {
+      const groups = expandIPv6(address)
+      if (groups === null || isPrivateIPv6(groups)) {
+        throw new FetchPageError('ssrf', 'That address is not allowed. Only public websites can be checked.')
+      }
     }
   }
 }
