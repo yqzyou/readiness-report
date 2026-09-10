@@ -49,3 +49,8 @@ Signals 15 · Local Fit 10 · AI Template Risk 10 · Ad Readiness 15.
 - Scoring thresholds (title/meta lengths, buzzword lists, sentence analysis)
   are calibrated for English-language pages; results for non-English sites
   may be misjudged.
+- Deployment: run as a single instance behind a reverse proxy that sets
+  `X-Forwarded-For` (the rate limiter reads the first value). Rate limiting
+  defaults to 5 requests/min/IP — override with `RATE_LIMIT_MAX` /
+  `RATE_LIMIT_WINDOW_MS`. Every fetch hop resolves DNS first and rejects
+  any private-range address (SSRF / rebinding guard).
