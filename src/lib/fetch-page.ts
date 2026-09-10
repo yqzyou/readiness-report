@@ -132,6 +132,30 @@ export function assertPublicUrl(url: URL): void {
   }
 }
 
+import { promises as dnsPromises } from 'node:dns'
+
+const DOTTED_IPV4 = /^\d{1,3}(?:\.\d{1,3}){3}$/
+
+export async function assertResolvesToPublic(hostname: string): Promise<void> {
+  const host = hostname.replace(/^\[|\]$/g, '')
+  if (DOTTED_IPV4.test(host) || host.includes(':')) return
+  let records: Array<{ address: string; family: number }>
+  try {
+    records = await dnsPromises.lookup(host, { all: true })
+  } catch {
+    throw new FetchPageError('dns', 'Could not reach that website. Check the address and try again.')
+  }
+  if (records.length === 0) {
+    throw new FetchPageError('dns', 'Could not reach that website. Check the address and try again.')
+  }
+  for (const { address, family } of records) {
+    const privateV6 = isPrivateIPv6(expandIPv6(address) ?? [])
+    if (family === 4 ? isPrivateIPv4(address) : privateV6) {
+      throw new FetchPageError('ssrf', 'That address is not allowed. Only public websites can be checked.')
+    }
+  }
+}
+
 export type FetchedPage = {
   url: string
   html: string

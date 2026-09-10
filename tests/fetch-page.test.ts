@@ -1,5 +1,11 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
-import { fetchPage, FetchPageError } from '@/lib/fetch-page'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { fetchPage, FetchPageError, assertResolvesToPublic } from '@/lib/fetch-page'
+
+const dnsMocks = vi.hoisted(() => ({ lookup: vi.fn() }))
+
+vi.mock('node:dns', () => ({
+  promises: { lookup: dnsMocks.lookup },
+}))
 
 function stubFetch(impl: (url: unknown, init?: RequestInit) => Promise<Response>) {
   const fn = vi.fn(impl)
@@ -7,9 +13,14 @@ function stubFetch(impl: (url: unknown, init?: RequestInit) => Promise<Response>
   return fn
 }
 
+beforeEach(() => {
+  dnsMocks.lookup.mockResolvedValue([{ address: '93.184.216.34', family: 4 }])
+})
+
 afterEach(() => {
   vi.unstubAllGlobals()
   vi.restoreAllMocks()
+  dnsMocks.lookup.mockReset()
 })
 
 describe('SSRF protection', () => {
@@ -167,5 +178,63 @@ describe('FetchPageError', () => {
     const err = new FetchPageError('dns', 'boom')
     expect(err.kind).toBe('dns')
     expect(err.message).toBe('boom')
+  })
+})
+
+describe('assertResolvesToPublic', () => {
+  it('allows a domain that resolves to public addresses', async () => {
+    dnsMocks.lookup.mockResolvedValue([
+      { address: '93.184.216.34', family: 4 },
+      { address: '2606:4700::6810:85e5', family: 6 },
+    ])
+    await expect(assertResolvesToPublic('example.com')).resolves.toBeUndefined()
+  })
+
+  it('rejects a domain resolving to a private IPv4', async () => {
+    dnsMocks.lookup.mockResolvedValue([{ address: '192.168.1.1', family: 4 }])
+    await expect(assertResolvesToPublic('evil.example')).rejects.toMatchObject({
+      kind: 'ssrf',
+    })
+  })
+
+  it('rejects a domain with mixed public and private records', async () => {
+    dnsMocks.lookup.mockResolvedValue([
+      { address: '93.184.216.34', family: 4 },
+      { address: '10.0.0.5', family: 4 },
+    ])
+    await expect(assertResolvesToPublic('mixed.example')).rejects.toMatchObject({
+      kind: 'ssrf',
+    })
+  })
+
+  it('rejects a domain resolving to a private IPv6', async () => {
+    dnsMocks.lookup.mockResolvedValue([{ address: 'fd12::1', family: 6 }])
+    await expect(assertResolvesToPublic('v6.example')).rejects.toMatchObject({
+      kind: 'ssrf',
+    })
+  })
+
+  it('maps lookup failure to the dns error', async () => {
+    dnsMocks.lookup.mockRejectedValue(new Error('ENOTFOUND'))
+    await expect(assertResolvesToPublic('nope.example')).rejects.toMatchObject({
+      kind: 'dns',
+    })
+  })
+
+  it('maps an empty record list to the dns error', async () => {
+    dnsMocks.lookup.mockResolvedValue([])
+    await expect(assertResolvesToPublic('empty.example')).rejects.toMatchObject({
+      kind: 'dns',
+    })
+  })
+
+  it('skips DNS for dotted IPv4 literals', async () => {
+    await expect(assertResolvesToPublic('8.8.8.8')).resolves.toBeUndefined()
+    expect(dnsMocks.lookup).not.toHaveBeenCalled()
+  })
+
+  it('skips DNS for bracketed IPv6 literals', async () => {
+    await expect(assertResolvesToPublic('[2606:4700::6810:85e5]')).resolves.toBeUndefined()
+    expect(dnsMocks.lookup).not.toHaveBeenCalled()
   })
 })
