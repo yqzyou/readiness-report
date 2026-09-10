@@ -48,7 +48,7 @@ async function assertResolvesToPublic(hostname: string): Promise<void>
 
 调用点：`fetchPage` 的重定向循环内，每跳先 `assertPublicUrl(current)`（字面量），紧接 `await assertResolvesToPublic(current.hostname)`，再发 fetch——防止公网站点重定向跳向解析到内网的域名。
 
-现有私网判断函数（`isPrivateIPv4` / `expandIPv6` / `isPrivateIPv6`）保持不动，直接复用；其中 `isPrivateIPv4` 与 `expandIPv6` 需要导出（当前 `expandIPv6` 已导出，`isPrivateIPv4` 补导出）。
+现有私网判断函数（`isPrivateIPv4` / `expandIPv6` / `isPrivateIPv6`）保持不动，直接复用。`assertResolvesToPublic` 与它们同在 `fetch-page.ts`，同文件内直接调用即可，无需新增导出（不扩大模块 API 面）。
 
 ## 4. 组件 2：速率限制
 
@@ -110,7 +110,7 @@ function clientIp(request: Request): string {
   - 字面量 IP hostname（如 `8.8.8.8`、`192.168.1.1`）→ 不触发 DNS 调用（断言 mock 未被调用）
   - 重定向到解析为私网的域名 → 抛 ssrf（跨 hop 生效）
 - 新文件 `tests/rate-limit.test.ts` 纯函数单测：窗口内计数放行/拒绝、过期后重置、`retryAfterSec` 计算、注入 `now` 控制时间、Map 上限触发全量清理
-- `tests/api-audit.test.ts` 扩展：同一 IP 连发 6 次（前 5 次过 zod 校验路径、第 6 次）断言 429 + `Retry-After` 头存在；429 响应体信封格式正确
+- `tests/api-audit.test.ts` 扩展：`vi.mock('@/lib/rate-limit')` 后默认放行（现有 6 用例同 IP 连续 POST，真实限流会误伤），新增用例一次性返回 `{ allowed: false, retryAfterSec: 42 }`，断言 429 + `Retry-After: 42` 头、信封格式正确、`fetchPage` 未被调用；计数逻辑本身由 `tests/rate-limit.test.ts` 纯函数测试覆盖
 - 现有 97 个测试不改动断言、必须继续全绿
 
 ## 7. 范围外（非目标）
