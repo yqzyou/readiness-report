@@ -24,7 +24,7 @@ form → POST /api/audit
   parseFacts  (cheerio → SiteFacts: objective facts only)
   runAnalyzers(7 rule-based dimensions, goal-aware)
   buildReport (weighted score, verdict, top risks, 7-day plan)
-  storage     (data/reports/<id>.json)
+  storage     (Postgres in prod / data/reports/<id>.json locally)
 → redirect to /report/<id>
 ```
 
@@ -45,15 +45,18 @@ Signals 15 · Local Fit 10 · AI Template Risk 10 · Ad Readiness 15.
 
 - The analyzer layer is pure functions over `SiteFacts` — designed so an LLM
   can replace or augment the rules later without touching fetch/UI.
-- Storage is a JSON-file interface — swappable for SQLite later.
+- Storage has two backends behind an unchanged interface: with
+  `POSTGRES_URL` set (and no explicit dir) reports go to Postgres; otherwise
+  they land in local `data/reports/` JSON files. Historical local reports are
+  not migrated.
 - Scoring thresholds (title/meta lengths, buzzword lists, sentence analysis)
   are calibrated for English-language pages; results for non-English sites
   may be misjudged.
-- Deployment: run as a single instance behind a reverse proxy that sets
-  `X-Forwarded-For` (the rate limiter reads the first value). Rate limiting
-  defaults to 5 requests/min/IP — override with `RATE_LIMIT_MAX` /
-  `RATE_LIMIT_WINDOW_MS`. Every fetch hop resolves DNS first and rejects
-  any private-range address (SSRF / rebinding guard).
-- Rate-limit counters live in memory only: they reset on restart, and
-  requests without an `X-Forwarded-For` header share a single
-  "unknown" bucket.
+- Deployment (Vercel): import the GitHub repo, create a Postgres (Neon)
+  database in the Storage tab (`POSTGRES_URL` is injected automatically), run
+  `db/schema.sql` once against it, deploy. Every fetch hop resolves DNS first
+  and rejects any private-range address (SSRF / rebinding guard).
+- Rate limiting is best-effort: counters live in memory per serverless
+  instance, defaulting to 5 requests/min/IP — override with `RATE_LIMIT_MAX`
+  / `RATE_LIMIT_WINDOW_MS`. Without an `X-Forwarded-For` header, requests
+  share a single "unknown" bucket.
