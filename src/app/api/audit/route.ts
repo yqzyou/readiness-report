@@ -7,6 +7,7 @@ import { saveReport } from '@/lib/storage'
 import { checkRateLimit } from '@/lib/rate-limit'
 
 export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 const bodySchema = z.object({
   url: z.string().min(3, 'Website URL is required'),
@@ -74,7 +75,10 @@ export async function POST(request: Request) {
     if (err instanceof FetchPageError) {
       return fail(err.message, ERROR_STATUS[err.kind])
     }
-    console.error('audit failed', err)
+    console.error('audit failed', err, {
+      pgVisible: Boolean(process.env.POSTGRES_URL),
+      pgLen: process.env.POSTGRES_URL?.length ?? 0,
+    })
     return fail('Something went wrong while checking the site. Please try again.', 500)
   }
 }
