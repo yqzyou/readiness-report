@@ -17,27 +17,28 @@ function shouldUsePostgres(dir?: string): boolean {
 
 export async function saveReport(
   report: AuditReport,
-  dir: string = DEFAULT_DIR,
+  dir?: string,
 ): Promise<void> {
   if (shouldUsePostgres(dir)) {
     await saveReportPg(report)
     return
   }
-  await fs.mkdir(dir, { recursive: true })
-  const file = path.join(dir, `${report.id}.json`)
+  const targetDir = dir ?? DEFAULT_DIR
+  await fs.mkdir(targetDir, { recursive: true })
+  const file = path.join(targetDir, `${report.id}.json`)
   await fs.writeFile(file, JSON.stringify(report, null, 2), 'utf8')
 }
 
 export async function getReport(
   id: string,
-  dir: string = DEFAULT_DIR,
+  dir?: string,
 ): Promise<AuditReport | null> {
   if (shouldUsePostgres(dir)) {
     return getReportPg(id)
   }
   if (!UUID_PATTERN.test(id)) return null
   try {
-    const raw = await fs.readFile(path.join(dir, `${id}.json`), 'utf8')
+    const raw = await fs.readFile(path.join(dir ?? DEFAULT_DIR, `${id}.json`), 'utf8')
     return JSON.parse(raw) as AuditReport
   } catch {
     return null
