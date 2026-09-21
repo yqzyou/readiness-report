@@ -52,10 +52,12 @@ Signals 15 · Local Fit 10 · AI Template Risk 10 · Ad Readiness 15.
 - Scoring thresholds (title/meta lengths, buzzword lists, sentence analysis)
   are calibrated for English-language pages; results for non-English sites
   may be misjudged.
-- Deployment (Vercel): import the GitHub repo, create a Postgres (Neon)
-  database in the Storage tab (`POSTGRES_URL` is injected automatically), run
-  `db/schema.sql` once against it, deploy. Every fetch hop resolves DNS first
-  and rejects any private-range address (SSRF / rebinding guard).
+- Deployment (Vercel): import the GitHub repo, deploy. Vercel Postgres was
+  retired in Dec 2024, so create the database on [neon.tech](https://neon.tech)
+  (or via a Marketplace Postgres integration), add its connection string as
+  the `POSTGRES_URL` environment variable in project settings, redeploy, and
+  run `db/schema.sql` once against it. Every fetch hop resolves DNS first and
+  rejects any private-range address (SSRF / rebinding guard).
 - Rate limiting is best-effort: counters live in memory per serverless
   instance, defaulting to 5 requests/min/IP — override with `RATE_LIMIT_MAX`
   / `RATE_LIMIT_WINDOW_MS`. Without an `X-Forwarded-For` header, requests
