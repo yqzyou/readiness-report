@@ -75,10 +75,7 @@ export async function POST(request: Request) {
     if (err instanceof FetchPageError) {
       return fail(err.message, ERROR_STATUS[err.kind])
     }
-    console.error('audit failed', err, {
-      pgVisible: Boolean(process.env.POSTGRES_URL),
-      pgLen: process.env.POSTGRES_URL?.length ?? 0,
-    })
+    console.error('audit failed', err)
     return fail('Something went wrong while checking the site. Please try again.', 500)
   }
 }
