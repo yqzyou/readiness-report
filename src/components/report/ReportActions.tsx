@@ -10,6 +10,7 @@ export default function ReportActions({
   id: string
 }) {
   const [copied, setCopied] = useState(false)
+  const [linkCopied, setLinkCopied] = useState(false)
 
   async function copyMarkdown() {
     try {
@@ -18,6 +19,25 @@ export default function ReportActions({
       setTimeout(() => setCopied(false), 2000)
     } catch {
       setCopied(false)
+    }
+  }
+
+  async function share() {
+    const url = window.location.href
+    if (typeof navigator.share === 'function') {
+      try {
+        await navigator.share({ title: document.title, url })
+      } catch {
+        // user dismissed the native share sheet
+      }
+      return
+    }
+    try {
+      await navigator.clipboard.writeText(url)
+      setLinkCopied(true)
+      setTimeout(() => setLinkCopied(false), 2000)
+    } catch {
+      setLinkCopied(false)
     }
   }
 
@@ -38,6 +58,9 @@ export default function ReportActions({
       </button>
       <button type="button" onClick={download} className="secondary">
         Download report
+      </button>
+      <button type="button" onClick={share} className="secondary">
+        {linkCopied ? 'Link copied!' : 'Share'}
       </button>
     </div>
   )

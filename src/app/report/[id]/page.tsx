@@ -1,8 +1,35 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import ReportActions from '@/components/report/ReportActions'
 import { getReport } from '@/lib/storage'
 
 export const dynamic = 'force-dynamic'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const { id } = await params
+  const report = await getReport(id)
+  if (!report) {
+    return { title: 'Report not found — Readiness Report' }
+  }
+  return {
+    title: `${report.overallScore}/100 for ${report.url} — Readiness Report`,
+    description: report.verdict,
+    openGraph: {
+      title: `${report.url} scores ${report.overallScore}/100`,
+      description: report.verdict,
+      type: 'article',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${report.url} scores ${report.overallScore}/100`,
+      description: report.verdict,
+    },
+  }
+}
 
 export default async function ReportPage({
   params,
