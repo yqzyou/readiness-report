@@ -43,3 +43,14 @@ export async function getReportPg(id: string): Promise<AuditReport | null> {
     return null
   }
 }
+
+export async function countReportsPg(): Promise<number | null> {
+  try {
+    const result = await getPool().query<{ count: number }>(
+      'SELECT COUNT(*)::int AS count FROM reports',
+    )
+    return result.rows[0]?.count ?? null
+  } catch {
+    return null
+  }
+}

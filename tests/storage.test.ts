@@ -2,7 +2,7 @@ import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { getReport, saveReport } from '@/lib/storage'
+import { countReports, getReport, saveReport } from '@/lib/storage'
 import type { AuditReport } from '@/lib/types'
 
 let dir: string
@@ -51,5 +51,18 @@ describe('storage', () => {
   it('rejects path-traversal ids without touching the filesystem', async () => {
     await expect(getReport('../../etc/passwd', dir)).resolves.toBeNull()
     await expect(getReport('not-a-uuid', dir)).resolves.toBeNull()
+  })
+
+  it('counts saved reports in a directory', async () => {
+    const countDir = path.join(dir, 'counted')
+    for (let i = 0; i < 3; i++) {
+      const id = `${i}1b2c3d4-e5f6-7890-abcd-ef1234567890`
+      await saveReport({ ...sampleReport(), id }, countDir)
+    }
+    await expect(countReports(countDir)).resolves.toBe(3)
+  })
+
+  it('returns 0 when the directory does not exist yet', async () => {
+    await expect(countReports(path.join(dir, 'never-created'))).resolves.toBe(0)
   })
 })

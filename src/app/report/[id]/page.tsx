@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import ReportActions from '@/components/report/ReportActions'
 import { getReport } from '@/lib/storage'
@@ -132,6 +133,15 @@ export default async function ReportPage({
             </li>
           ))}
         </ol>
+      </section>
+
+      <section className="next-step" aria-labelledby="check-another">
+        <h2 id="check-another">Fixed these? Check again.</h2>
+        <p>
+          Re-run this audit after your 7-day plan to watch the score move — or
+          check another site for free.
+        </p>
+        <Link href="/">Run another free check →</Link>
       </section>
     </main>
   )

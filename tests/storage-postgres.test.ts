@@ -1,6 +1,6 @@
 import { afterAll, describe, expect, it } from 'vitest'
 import { randomUUID } from 'node:crypto'
-import { getReport, saveReport } from '@/lib/storage'
+import { countReports, getReport, saveReport } from '@/lib/storage'
 import type { AuditReport } from '@/lib/types'
 
 // Hits a real Postgres when POSTGRES_URL is set (e.g. a Neon branch).
@@ -38,5 +38,13 @@ describe.skipIf(!process.env.POSTGRES_URL)('storage (postgres backend)', () => {
   it('rejects non-uuid ids without querying', async () => {
     await expect(getReport('../../etc/passwd')).resolves.toBeNull()
     await expect(getReport('not-a-uuid')).resolves.toBeNull()
+  })
+
+  it('counts reports and never drops below the saved rows', async () => {
+    const before = await countReports()
+    const id = randomUUID()
+    created.push(id)
+    await saveReport(sampleReport(id))
+    await expect(countReports()).resolves.toBeGreaterThanOrEqual((before ?? 0) + 1)
   })
 })
