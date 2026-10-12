@@ -9,7 +9,7 @@ const PLAN_SLOTS: PlanSlot[] = [
   { keys: ['offer-clarity'], fallback: 'State exactly what you offer, for whom, and where.' },
   { keys: ['trust-signals'], fallback: 'Add testimonials, your address, and real photos.' },
   { keys: ['crawlability'], fallback: 'Fix the page title, meta description, and H1.' },
-  { keys: ['local-fit'], fallback: 'Mention your city and service area throughout the page.' },
+  { keys: ['local-fit'], fallback: 'Tell visitors who you serve and where your offer works.' },
   { keys: ['ai-template-risk'], fallback: 'Replace generic AI copy with specifics and numbers.' },
   { keys: ['ad-readiness'], fallback: 'Re-run this check before spending money on ads.' },
 ]
