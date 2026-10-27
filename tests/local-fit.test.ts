@@ -65,5 +65,28 @@ describe('analyzeLocalFit', () => {
       const section = analyzeLocalFit(facts, ONLINE_INPUT, [])
       expect(section.score).toBeGreaterThanOrEqual(5)
     })
+
+    it('routes a misspelled worldwide market (mixed with audience words) to the online branch', () => {
+      const input = { ...BASE_INPUT, targetMarket: 'Wordwide, Developers, SaaS' }
+      const section = analyzeLocalFit(sparseFacts(), input, [])
+      const text = [...section.evidence, ...section.fixes].join(' ').toLowerCase()
+      expect(text).not.toMatch(/map/)
+      expect(text).not.toMatch(/service area/)
+    })
+
+    it('treats continent-level markets as online (no map advice)', () => {
+      const input = { ...BASE_INPUT, targetMarket: 'Europe, America.' }
+      const section = analyzeLocalFit(sparseFacts(), input, [])
+      const text = [...section.evidence, ...section.fixes].join(' ').toLowerCase()
+      expect(text).not.toMatch(/map/)
+      expect(text).not.toMatch(/near me/)
+    })
+  })
+
+  it('keeps comma-separated city markets on the local branch', () => {
+    const input = { ...BASE_INPUT, targetMarket: 'Austin, Texas' }
+    const section = analyzeLocalFit(sparseFacts(), input, [])
+    const text = [...section.evidence, ...section.fixes].join(' ')
+    expect(text).toMatch(/map/i)
   })
 })

@@ -5,7 +5,7 @@ const SERVICE_AREA_PHRASE =
   /\b(serving|service area|served areas?|based in|located in|proudly serving|throughout)\b/i
 
 const ONLINE_MARKET_PATTERN =
-  /\b(worldwide|global(ly)?|online|internet|remote|everywhere|international(ly)?|anywhere|all (over )?the world)\b/i
+  /\b(worldwide|wordwide|wordlwide|world[- ]?wide|global(ly)?|online|internet|remote|everywhere|international(ly)?|anywhere|all (over )?the world|europe|americas?|asia|australia|africa|north america|south america)\b/i
 
 const AUDIENCE_PATTERNS = [
   /\bfor (small |mid-|large |top )?(businesses|teams|developers|creators|agencies|startups|freelancers|enterprises|companies|shops|stores|sellers|marketers|designers|professionals|students)\b/i,
